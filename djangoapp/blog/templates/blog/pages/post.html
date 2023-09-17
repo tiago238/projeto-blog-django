@@ -33,7 +33,7 @@
 
       <div class="post-meta pb-base">
         <div class="post-meta-item">
-          <a class="post-meta-link" href="#">
+          <a class="post-meta-link" href="{% url "blog:created_by" post.created_by.pk %}">
             <i class="fa-solid fa-user"></i>
             <span>
               {% if post.created_by.first_name %}
