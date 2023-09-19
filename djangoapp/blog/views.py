@@ -1,27 +1,28 @@
+from typing import Any, Dict
 from django.core.paginator import Paginator
+from django.db.models.query import QuerySet
 from django.shortcuts import render
 from blog.models import Post, Page
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.http import Http404
+from django.views.generic import ListView
 
 PER_PAGE = 9
 
-def index(request):
-    posts = Post.objManager.get_published()
-    paginator = Paginator(posts, PER_PAGE)
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-
-    return render(
-        request,
-        'blog/pages/index.html',
-        {
-            'page_obj': page_obj,
+class PostListView(ListView):   
+    template_name = 'blog/pages/index.html'
+    context_object_name = 'posts'
+    ordering = '-pk'    
+    queryset = Post.objManager.get_published()  
+     
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
             'page_title': 'Home - ',
-        }
-    )
-
+        })
+        return context
+    
 def created_by(request, author_pk):
     user = User.objects.filter(pk=author_pk).first()
 
@@ -50,6 +51,9 @@ def created_by(request, author_pk):
             'page_title': page_title,
         }
     )
+
+class CreatedByListView(PostListView):
+    ...
 
 def category(request, slug):
     posts = (
